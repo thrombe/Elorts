@@ -1,6 +1,6 @@
 use reqwest;
 use std::collections::HashMap;
-use serde_json::{json, to_string, from_str};
+use serde_json::{json, to_string, from_str, from_value};
 
 use super::remind::Reminder;
 
@@ -20,36 +20,20 @@ impl<'a> Dweet<'a> {
     }
     
     /// get the data stored in dweep and deserialise it into a vec of Reminders
-    /// this func panics!!
+    /// this func panics!! if data is not in correct format
     pub fn get_data(&self) -> Result<Vec<Reminder>, Box<dyn std::error::Error>> {
-        let resp = reqwest::blocking::get(&self.get_link)?
-            .text()?;
-        let resp: serde_json::Value = from_str(&resp)?;
-        let resp = match resp["with"][0]["content"].clone() {
+        let resp = reqwest::blocking::get(&self.get_link)?.text()?; // get string out of get request
+        let resp: serde_json::Value = from_str(&resp)?; // convert string to serde json objects
+        let resp = match &resp["with"][0]["content"] { // get relevent data out of it
             serde_json::Value::Object(val) => val,
             _ => panic!(),
+            // how do i do better errors here?
         };
-        // let resp2: HashMap<u64, Reminder<'_>> = from_str(&resp1).unwrap();
-        
-        let mut reminder_vec = Vec::new();
-        for (_, rem) in resp.iter() {
-            reminder_vec.append(&mut vec![ // stuffing reminders in a vec to return
-                Reminder { // manually deserialising reminders from the serde_json object
-                    title: match rem["title"].clone() { // i had to do clones here to save myself from madness
-                        serde_json::Value::String(val) => val,
-                        _ => panic!(), // how do i do better errors here?
-                    },
-                    message: match rem["message"].clone() {
-                        serde_json::Value::String(val) => val,
-                        _ => panic!(),
-                    },
-                    time: match rem["time"].clone() {
-                        serde_json::Value::String(val) => val.parse::<u64>()?,
-                        serde_json::Value::Number(val) => val.as_u64().unwrap(),
-                        _ => panic!(),
-                    },
-                }
-            ]);
+
+        let mut reminder_vec: Vec<Reminder> = Vec::new();
+        for rem in resp.values() { // stuffing reminders in a vec to return
+            // i had to do clones here to save myself from pain
+            reminder_vec.push(from_value(rem.clone())?);
         }
         Ok(reminder_vec)
     }
