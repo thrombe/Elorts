@@ -20,6 +20,7 @@ impl<'a> Dweet<'a> {
     }
     
     /// get the data stored in dweep and deserialise it into a vec of Reminders
+    /// this func panics!!
     pub fn get_data(&self) -> Result<Vec<Reminder>, Box<dyn std::error::Error>> {
         let resp = reqwest::blocking::get(&self.get_link)?
             .text()?;
@@ -43,7 +44,8 @@ impl<'a> Dweet<'a> {
                         _ => panic!(),
                     },
                     time: match rem["time"].clone() {
-                        serde_json::Value::String(val) => val,
+                        serde_json::Value::String(val) => val.parse::<u64>()?,
+                        serde_json::Value::Number(val) => val.as_u64().unwrap(),
                         _ => panic!(),
                     },
                 }
@@ -58,7 +60,7 @@ impl<'a> Dweet<'a> {
         data.insert(0, Reminder {
             title: "testle".to_string(),
             message: "sawkon these".to_string(),
-            time: "bowls".to_string(),
+            time: 73737,
         });
         
         let client = reqwest::blocking::Client::new();

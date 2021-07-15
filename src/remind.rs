@@ -8,13 +8,13 @@ use super::dweet::Dweet;
 pub struct Reminder {
     pub title: String,
     pub message: String,
-    pub time: String,
+    pub time: u64,
 }
 
 /// this is the main func here
 pub fn remind() -> Result<(), Box<dyn std::error::Error>> {
     let dweet = Dweet::new("beso-beso-beminders");
-    // dweet.post_data();
+    dweet.post_data();
     let data = dweet.get_data();
     println!("{:?}", data);
 
