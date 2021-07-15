@@ -20,23 +20,23 @@ impl<'a> Dweet<'a> {
     }
     
     /// get the data stored in dweep and deserialise it into a vec of Reminders
-    pub fn get_data(&self) -> Vec<Reminder> {
-        let resp = reqwest::blocking::get(&self.get_link).unwrap()
-            .text().unwrap();
-        let resp0: serde_json::Value = from_str(&resp).unwrap();
-        let resp1 = match resp0["with"][0]["content"].clone() {
+    pub fn get_data(&self) -> Result<Vec<Reminder>, Box<dyn std::error::Error>> {
+        let resp = reqwest::blocking::get(&self.get_link)?
+            .text()?;
+        let resp: serde_json::Value = from_str(&resp)?;
+        let resp = match resp["with"][0]["content"].clone() {
             serde_json::Value::Object(val) => val,
             _ => panic!(),
         };
         // let resp2: HashMap<u64, Reminder<'_>> = from_str(&resp1).unwrap();
         
         let mut reminder_vec = Vec::new();
-        for (_, rem) in resp1.iter() {
+        for (_, rem) in resp.iter() {
             reminder_vec.append(&mut vec![ // stuffing reminders in a vec to return
                 Reminder { // manually deserialising reminders from the serde_json object
                     title: match rem["title"].clone() { // i had to do clones here to save myself from madness
                         serde_json::Value::String(val) => val,
-                        _ => panic!(),
+                        _ => panic!(), // how do i do better errors here?
                     },
                     message: match rem["message"].clone() {
                         serde_json::Value::String(val) => val,
@@ -49,11 +49,11 @@ impl<'a> Dweet<'a> {
                 }
             ]);
         }
-        reminder_vec
+        Ok(reminder_vec)
     }
     
     /// dosent do anything useful for now, but can be used to post hashmaps of Reminders in dweet
-    pub fn post_data(&self) {
+    pub fn post_data(&self) -> Result<(), Box<dyn std::error::Error>> {
         let mut data = HashMap::<u64, Reminder>::new(); // creating a test value for dweet
         data.insert(0, Reminder {
             title: "testle".to_string(),
@@ -64,6 +64,8 @@ impl<'a> Dweet<'a> {
         let client = reqwest::blocking::Client::new();
         let res = client.post(&self.post_link)
             .json(&data)
-            .send();
+            .send()?;
+        
+        Ok(())
     }
 }
