@@ -1,11 +1,12 @@
 use reqwest;
 use std::collections::HashMap;
+#[allow(unused_imports)]
 use serde_json::{json, to_string, from_str, from_value};
 
 use super::remind::Reminder;
 
 pub struct Dweet<'a> {
-    key: &'a str,
+    _key: &'a str,
     get_link: String,
     post_link: String,
 }
@@ -13,7 +14,7 @@ pub struct Dweet<'a> {
 impl<'a> Dweet<'a> {
     pub fn new(dweet: &'a str) -> Self {
         Self {
-            key: dweet,
+            _key: dweet,
             get_link: format!("https://dweet.io/get/latest/dweet/for/{}", dweet),
             post_link: format!("https://dweet.io/dweet/for/{}", dweet),
         }
@@ -38,8 +39,29 @@ impl<'a> Dweet<'a> {
         Ok(reminder_vec)
     }
     
-    /// dosent do anything useful for now, but can be used to post hashmaps of Reminders in dweet
-    pub fn post_data(&self) -> Result<(), Box<dyn std::error::Error>> {
+    /// used to post hashmaps of Reminders in dweet
+    /// this may panic!!!
+    pub fn post_data(&self, mut data: Vec<Reminder>) -> Result<(), Box<dyn std::error::Error>> {
+        // .get_data expects data in a hashmap
+        let mut map = HashMap::<u64, Reminder>::new();
+        let mut i = 0;
+        for reminder in data.drain(0..data.len()) { // drain pops the element as its used
+            map.insert(i, reminder);
+            i += 1;
+        }
+        
+        let client = reqwest::blocking::Client::new();
+        let res = client.post(&self.post_link)
+            .json(&data)
+            .send()?;
+        if !res.status().is_success() {panic!()};
+        
+        Ok(())
+    }
+    
+    /// upload test data in dweet (old data may be lost!!)
+    #[allow(dead_code)]
+    fn post_test_data(&self) -> Result<(), Box<dyn std::error::Error>> {
         let mut data = HashMap::<u64, Reminder>::new(); // creating a test value for dweet
         data.insert(0, Reminder {
             title: "testle".to_string(),
@@ -51,6 +73,7 @@ impl<'a> Dweet<'a> {
         let res = client.post(&self.post_link)
             .json(&data)
             .send()?;
+        if !res.status().is_success() {panic!()};
         
         Ok(())
     }

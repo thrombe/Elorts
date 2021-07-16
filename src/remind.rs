@@ -1,8 +1,9 @@
-#![allow(unused_imports)]
 
 use serde_derive::{Serialize, Deserialize};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use super::dweet::Dweet;
+use super::discord::Discord;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Reminder {
@@ -14,10 +15,44 @@ pub struct Reminder {
 /// this is the main func here
 pub fn remind() -> Result<(), Box<dyn std::error::Error>> {
     let dweet = Dweet::new("beso-beso-beminders");
-    dweet.post_data();
-    let data = dweet.get_data();
-    println!("{:?}", data);
+    let time_span: u64 = 60*30; // round to nearest hour, so take half an hour
+    let mut discord = Discord::new(
+         "https://discord.com/api/webhooks/852818463734890511/CHWDqR7OLTJtDyudDVsFnkq7vHRDgbIx2fe7PIA_h-RiYErQLpnkgzmgyuS0HQe26urp"
+         .to_string()
+         );
+    
+    let mut data = match dweet.get_data() {
+        Ok(val) => val,
+        Err(_) => panic!(),
+    };
+    // println!("{:?}", data);
+    
+    let mut now: u64 = SystemTime::now()
+        .duration_since(UNIX_EPOCH)?
+        .as_secs();
+    now += time_span;
+    for reminder in &data {
+        if now < reminder.time {continue}
+        discord.rate_limit_wait(); // not implimented yet
+        discord.ping(&reminder)?;
+    }
+    pop_reminders(&mut data, now)?;
+    dweet.post_data(data)?;
 
+    Ok(())
+}
+
+/// pops remindors which are no longer needed
+fn pop_reminders(data: &mut Vec<Reminder>, now: u64)
+    ->  Result<(), Box<dyn std::error::Error>> {
+    let mut i = 0;
+    while i < data.len() {
+        if now < data[i].time {
+            i += 1;
+            continue
+        }
+        data.remove(i);
+    }
     Ok(())
 }
 
