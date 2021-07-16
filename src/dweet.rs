@@ -27,7 +27,7 @@ impl<'a> Dweet<'a> {
         let resp: serde_json::Value = from_str(&resp)?; // convert string to serde json objects
         let resp = match &resp["with"][0]["content"] { // get relevent data out of it
             serde_json::Value::Object(val) => val,
-            _ => panic!(),
+            _ => panic!("unexpected data"),
             // how do i do better errors here?
         };
 
@@ -52,18 +52,22 @@ impl<'a> Dweet<'a> {
         
         let client = reqwest::blocking::Client::new();
         let res = client.post(&self.post_link)
-            .json(&data)
+            .json(&map)
             .send()?;
-        if !res.status().is_success() {panic!()};
+        if !res.status().is_success() {panic!("posting data failed")};
         
         Ok(())
     }
     
     /// upload test data in dweet (old data may be lost!!)
     #[allow(dead_code)]
-    fn post_test_data(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn post_test_data(&self) -> Result<(), Box<dyn std::error::Error>> {
         let mut data = HashMap::<u64, Reminder>::new(); // creating a test value for dweet
         data.insert(0, Reminder {
+            message: "sawkon these".to_string(),
+            time: !(1 as u32) as u64, // u64 cant be stored on json? idk but this is interpreted as float in serde
+        });
+        data.insert(1, Reminder {
             message: "sawkon these".to_string(),
             time: 73737,
         });

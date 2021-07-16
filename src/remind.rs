@@ -14,17 +14,17 @@ pub struct Reminder {
 /// this is the main func here
 pub fn remind() -> Result<(), Box<dyn std::error::Error>> {
     let dweet = Dweet::new("beso-beso-beminders");
-    let time_span: u64 = 60*30; // round to nearest hour, so take half an hour
+    let time_span: u64 = 60*15; // half thebcheck interval time
     let mut discord = Discord::new(
-         "https://discord.com/api/webhooks/852818463734890511/CHWDqR7OLTJtDyudDVsFnkq7vHRDgbIx2fe7PIA_h-RiYErQLpnkgzmgyuS0HQe26urp"
-         .to_string()
+           "https://discord.com/api/webhooks/864157339413774380/fOScRd_0ofvOrIRKr5qxYFDj5XA9GzVFzJnhWSc0UnJbIOr2ptfugevA4pPlVCcHyGFY"
+           .to_string()
          );
-    
+    // dweet.post_test_data()?;
     let mut data = match dweet.get_data() {
         Ok(val) => val,
-        Err(_) => panic!(),
+        Err(er) => panic!("{:?}", er),
     };
-    // println!("{:?}", data);
+    // println!("{:?}", &data);
     
     let mut now: u64 = SystemTime::now()
         .duration_since(UNIX_EPOCH)?
