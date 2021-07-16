@@ -64,7 +64,6 @@ impl<'a> Dweet<'a> {
     fn post_test_data(&self) -> Result<(), Box<dyn std::error::Error>> {
         let mut data = HashMap::<u64, Reminder>::new(); // creating a test value for dweet
         data.insert(0, Reminder {
-            title: "testle".to_string(),
             message: "sawkon these".to_string(),
             time: 73737,
         });

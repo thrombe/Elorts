@@ -7,7 +7,6 @@ use super::discord::Discord;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Reminder {
-    pub title: String,
     pub message: String,
     pub time: u64,
 }
