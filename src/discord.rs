@@ -2,8 +2,6 @@
 use reqwest;
 use serde_derive::{Serialize, Deserialize};
 
-use super::remind::Reminder;
-
 pub struct Discord {
     webhook: String,
 }
@@ -13,14 +11,12 @@ impl Discord {
         Self {webhook}
     }
     
-    pub fn ping(&self, reminder: &Reminder) ->  Result<(), Box<dyn std::error::Error>> {
+    pub fn ping<T>(&self, tea: &T) ->  Result<(), Box<dyn std::error::Error>> 
+    where T: DiscordMsg {
         let client = reqwest::blocking::Client::new();
         
         let message = DiscordMessage {
-            content: format!(
-                "``` {} ```",
-                &reminder.message,
-                ),
+            content: tea.get_msg(),
         };
         let res = client.post(&self.webhook)
             .json(&message)
@@ -38,4 +34,8 @@ impl Discord {
 #[derive(Serialize, Deserialize, Debug)]
 struct DiscordMessage {
     content: String,
+}
+
+pub trait DiscordMsg {
+    fn get_msg(&self) -> String;
 }

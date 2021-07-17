@@ -540,7 +540,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "remind_alert"
+name = "remEond"
 version = "0.1.0"
 dependencies = [
  "reqwest",

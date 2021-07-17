@@ -2,13 +2,43 @@
 use serde_derive::{Serialize, Deserialize};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use super::dweet::Dweet;
-use super::discord::Discord;
+use super::dweet::{Dweet, GetTime};
+use super::discord::{Discord, DiscordMsg};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Reminder {
     pub message: String,
     pub time: u64,
+}
+
+impl DiscordMsg for &Reminder {
+    fn get_msg(&self) -> String {
+        format!(
+            "``` {} ```",
+            &self.message,
+            )
+    }
+}
+
+impl Reminder {
+    pub fn test_data() -> Vec<Reminder> {
+        let mut data = Vec::<Reminder>::new(); // creating a test value for dweet
+        data.push(Reminder {
+            message: "sawkon these".to_string(),
+            time: !(1 as u32) as u64, // u64 cant be stored on json? idk but this is interpreted as float in serde
+        });
+        data.push(Reminder {
+            message: "sawkon these".to_string(),
+            time: 73737,
+        });
+        data
+    }
+}
+
+impl GetTime for Reminder {
+    fn get_time(&self) -> u64 {
+        self.time
+    }
 }
 
 /// this is the main func here
@@ -19,8 +49,8 @@ pub fn remind() -> Result<(), Box<dyn std::error::Error>> {
            "https://discord.com/api/webhooks/864157339413774380/fOScRd_0ofvOrIRKr5qxYFDj5XA9GzVFzJnhWSc0UnJbIOr2ptfugevA4pPlVCcHyGFY"
            .to_string()
          );
-    // dweet.post_test_data()?;
-    let mut data = match dweet.get_data() {
+    // dweet.post_data(Reminder::test_data())?;
+    let mut data = match dweet.get_data::<Reminder>() {
         Ok(val) => val,
         Err(er) => panic!("{:?}", er),
     };
@@ -35,23 +65,9 @@ pub fn remind() -> Result<(), Box<dyn std::error::Error>> {
         discord.rate_limit_wait(); // not implimented yet
         discord.ping(&reminder)?;
     }
-    pop_reminders(&mut data, now)?;
+    Dweet::pop_old(&mut data, now);
     dweet.post_data(data)?;
 
-    Ok(())
-}
-
-/// pops remindors which are no longer needed
-fn pop_reminders(data: &mut Vec<Reminder>, now: u64)
-    ->  Result<(), Box<dyn std::error::Error>> {
-    let mut i = 0;
-    while i < data.len() {
-        if now < data[i].time {
-            i += 1;
-            continue
-        }
-        data.remove(i);
-    }
     Ok(())
 }
 
@@ -60,27 +76,6 @@ fn pop_reminders(data: &mut Vec<Reminder>, now: u64)
 
 /*
 //// ignore stuff after this, its just testing
-fn discord_stuff() {
-    
-    #[derive(Serialize, Deserialize, Debug)]
-    struct discord<'a> {
-        content: &'a str,
-    }
-    
-    
-    let data = discord {
-        content: "stuffshhsh",
-    };
-    
-    let webhook = "https://discord.com/api/webhooks/852818463734890511/CHWDqR7OLTJtDyudDVsFnkq7vHRDgbIx2fe7PIA_h-RiYErQLpnkgzmgyuS0HQe26urp";
-    let client = reqwest::blocking::Client::new();
-    let res = client.post(webhook)
-        .json(&data)
-        .send();
-    println!("{:?}", res);
-    
-}
-
 fn eg_ser_deser() -> Result<(), Box<dyn std::error::Error>> {
     let vec = vec![ // create whatever you wanna serialise to string
         Reminder {

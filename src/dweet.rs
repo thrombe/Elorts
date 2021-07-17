@@ -2,8 +2,7 @@ use reqwest;
 use std::collections::HashMap;
 #[allow(unused_imports)]
 use serde_json::{json, to_string, from_str, from_value};
-
-use super::remind::Reminder;
+use serde::{Serialize, Deserialize};
 
 pub struct Dweet<'a> {
     _key: &'a str,
@@ -20,9 +19,23 @@ impl<'a> Dweet<'a> {
         }
     }
     
+    pub fn pop_old<T>(data: &mut Vec<T>, now: u64) 
+    where T: GetTime {
+        let mut i = 0;
+        while i < data.len() {
+            if now < data[i].get_time() {
+                i += 1;
+                continue
+            }
+            data.remove(i);
+        }
+    }
+    
     /// get the data stored in dweep and deserialise it into a vec of Reminders
     /// this func panics!! if data is not in correct format
-    pub fn get_data(&self) -> Result<Vec<Reminder>, Box<dyn std::error::Error>> {
+    pub fn get_data<T>(&self) -> Result<Vec<T>, Box<dyn std::error::Error>> 
+    where T: Serialize + for<'de> Deserialize<'de> {
+        
         let resp = reqwest::blocking::get(&self.get_link)?.text()?; // get string out of get request
         let resp: serde_json::Value = from_str(&resp)?; // convert string to serde json objects
         let resp = match &resp["with"][0]["content"] { // get relevent data out of it
@@ -30,23 +43,27 @@ impl<'a> Dweet<'a> {
             _ => panic!("unexpected data"),
             // how do i do better errors here?
         };
-
-        let mut reminder_vec: Vec<Reminder> = Vec::new();
-        for rem in resp.values() { // stuffing reminders in a vec to return
+        
+        // tea -> an instance of T
+        let mut tea_vec: Vec<T> = Vec::new();
+        for tea in resp.values() { // stuffing reminders in a vec to return
             // i had to do clones here to save myself from pain
-            reminder_vec.push(from_value(rem.clone())?);
+            tea_vec.push(from_value(tea.clone())?);
         }
-        Ok(reminder_vec)
+        Ok(tea_vec)
     }
     
     /// used to post hashmaps of Reminders in dweet
     /// this may panic!!!
-    pub fn post_data(&self, mut data: Vec<Reminder>) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn post_data<T>(&self, mut data: Vec<T>) -> Result<(), Box<dyn std::error::Error>> 
+    where T: Serialize + for<'de> Deserialize<'de> {
+        
         // .get_data expects data in a hashmap
-        let mut map = HashMap::<u64, Reminder>::new();
+        let mut map = HashMap::<u64, T>::new();
         let mut i = 0;
-        for reminder in data.drain(0..data.len()) { // drain pops the element as its used
-            map.insert(i, reminder);
+        // tea -> an instance of T
+        for tea in data.drain(0..data.len()) { // drain pops the element as its used
+            map.insert(i, tea);
             i += 1;
         }
         
@@ -58,26 +75,8 @@ impl<'a> Dweet<'a> {
         
         Ok(())
     }
-    
-    /// upload test data in dweet (old data may be lost!!)
-    #[allow(dead_code)]
-    pub fn post_test_data(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let mut data = HashMap::<u64, Reminder>::new(); // creating a test value for dweet
-        data.insert(0, Reminder {
-            message: "sawkon these".to_string(),
-            time: !(1 as u32) as u64, // u64 cant be stored on json? idk but this is interpreted as float in serde
-        });
-        data.insert(1, Reminder {
-            message: "sawkon these".to_string(),
-            time: 73737,
-        });
-        
-        let client = reqwest::blocking::Client::new();
-        let res = client.post(&self.post_link)
-            .json(&data)
-            .send()?;
-        if !res.status().is_success() {panic!()};
-        
-        Ok(())
-    }
+}
+
+pub trait GetTime {
+    fn get_time(&self) -> u64;
 }
