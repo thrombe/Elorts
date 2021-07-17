@@ -2,7 +2,7 @@
 use serde_derive::{Serialize, Deserialize};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use super::dweet::{Dweet, GetTime};
+use super::dweet::Dweet;
 use super::discord::{Discord, DiscordMsg};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -35,12 +35,6 @@ impl Reminder {
     }
 }
 
-impl GetTime for Reminder {
-    fn get_time(&self) -> u64 {
-        self.time
-    }
-}
-
 /// this is the main func here
 pub fn remind() -> Result<(), Box<dyn std::error::Error>> {
     let dweet = Dweet::new("beso-beso-beminders");
@@ -65,10 +59,21 @@ pub fn remind() -> Result<(), Box<dyn std::error::Error>> {
         discord.rate_limit_wait(); // not implimented yet
         discord.ping(&reminder)?;
     }
-    Dweet::pop_old(&mut data, now);
+    pop_old_reminders(&mut data, now);
     dweet.post_data(data)?;
 
     Ok(())
+}
+
+fn pop_old_reminders(data: &mut Vec<Reminder>, now: u64) {
+    let mut i = 0;
+    while i < data.len() {
+        if now < data[i].time {
+            i += 1;
+            continue
+        }
+        data.remove(i);
+    }
 }
 
 

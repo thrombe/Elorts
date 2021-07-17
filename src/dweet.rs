@@ -18,19 +18,7 @@ impl<'a> Dweet<'a> {
             post_link: format!("https://dweet.io/dweet/for/{}", dweet),
         }
     }
-    
-    pub fn pop_old<T>(data: &mut Vec<T>, now: u64) 
-    where T: GetTime {
-        let mut i = 0;
-        while i < data.len() {
-            if now < data[i].get_time() {
-                i += 1;
-                continue
-            }
-            data.remove(i);
-        }
-    }
-    
+
     /// get the data stored in dweep and deserialise it into a vec of Reminders
     /// this func panics!! if data is not in correct format
     pub fn get_data<T>(&self) -> Result<Vec<T>, Box<dyn std::error::Error>> 
@@ -75,8 +63,4 @@ impl<'a> Dweet<'a> {
         
         Ok(())
     }
-}
-
-pub trait GetTime {
-    fn get_time(&self) -> u64;
 }
