@@ -1,0 +1,37 @@
+name: Elorts compile and push
+
+on: 
+  workflow_dispatch:
+  push:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: install toolchain
+        uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: building
+        working-directory: ./rust
+        run: |
+          cargo build --release
+      - name: building Elorts complete, get other repo
+        run: |
+          git clone https://${{secrets.ghub_name}}:${{secrets.ghub_token}}@github.com/${{secrets.ghub_name}}/${{secrets.repo}}.git ${{secrets.repo}}
+          mkdir -p ${{secrets.repo}}/.github
+          mkdir -p ${{secrets.repo}}/.github/workflows
+          cp ./remElorts.yaml ./${{secrets.repo}}/.github/workflows/remElorts.yaml
+          cp ./webElorts.yaml ./${{secrets.repo}}/.github/workflows/webElorts.yaml
+          cp ./webElorts.json ./${{secrets.repo}}/webElorts.json
+      - name: move binary and push
+        run: |
+          mv rust/target/release/Elorts ${{secrets.repo}}/Elorts
+          cd ${{secrets.repo}}
+          git config user.email "${{secrets.email}}"
+          git config user.name "${{secrets.ghub_name}}"
+          git remote set-url origin https://${{secrets.ghub_name}}:${{secrets.ghub_token}}@github.com/${{secrets.ghub_name}}/${{secrets.repo}}.git
+          git add -A
+          git commit --amend --no-edit
+          git push --force

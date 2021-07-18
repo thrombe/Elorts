@@ -57,7 +57,7 @@ pub fn elort() -> Result<(), Box<dyn std::error::Error>> {
     // println!("{:?}", &dweelorts);
     
     let data = fs::read_to_string(
-        "./webElort.json"
+        "./webElorts.json"
     )?;
     let mut elorts: Vec<WebElort> = from_str(&data)?;
     yeet_bad_elorts(&mut elorts);

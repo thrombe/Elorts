@@ -1,0 +1,17 @@
+name: check sites after interval
+
+on: 
+  schedule:
+    - cron: "0 */12 * * *"
+  workflow_dispatch:
+  push:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: run binary
+        run: |
+          chmod +x ./Elorts
+          ./Elorts web_check
