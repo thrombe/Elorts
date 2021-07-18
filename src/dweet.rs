@@ -1,7 +1,7 @@
 use reqwest;
 use std::collections::HashMap;
-#[allow(unused_imports)]
-use serde_json::{json, to_string, from_str, from_value};
+// use serde_json::{json, to_string, from_str, from_value};
+use serde_json::{from_str, from_value};
 use serde::{Serialize, Deserialize};
 
 pub struct Dweet<'a> {
