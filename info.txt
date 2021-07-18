@@ -1,15 +1,2 @@
-takes a look at the reminders and checks to see if the 
-reminder is supposed to be completed in the
-(current_time + interval ) (basically a less than check)
-if yes calls a function with data in that reminder, 
-if no calls another function  with the data in that reminder
-{
-    "title":"Title",
-    "text":"text",
-    "time":1609309983
-}
-time is in an integer form
-probably normalized or rounded if needed
-use the less than and equal to operator
-so if time on reminder is less than 
-current time + remind duration, notify the discords
+plan:
+  
