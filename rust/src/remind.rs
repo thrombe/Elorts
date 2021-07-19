@@ -4,6 +4,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use super::dweet::Dweet;
 use super::discord::{Discord, DiscordMsg};
+use super::Opt;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Reminder {
@@ -36,13 +37,10 @@ impl Reminder {
 }
 
 /// this is the main func here
-pub fn remind() -> Result<(), Box<dyn std::error::Error>> {
-    let dweet = Dweet::new("beso-beso-beminders");
+pub fn remind(opt: Opt) -> Result<(), Box<dyn std::error::Error>> {
+    let dweet = Dweet::new(opt.dweet);
     let time_span: u64 = 60*15; // half thebcheck interval time
-    let mut discord = Discord::new(
-           "https://discord.com/api/webhooks/864157339413774380/fOScRd_0ofvOrIRKr5qxYFDj5XA9GzVFzJnhWSc0UnJbIOr2ptfugevA4pPlVCcHyGFY"
-           .to_string()
-         );
+    let mut discord = Discord::new(opt.cordwebhook);
     // dweet.post_data(Reminder::test_data())?;
     let mut data = match dweet.get_data::<Reminder>() {
         Ok(val) => val,
@@ -60,7 +58,7 @@ pub fn remind() -> Result<(), Box<dyn std::error::Error>> {
         discord.ping(&reminder)?;
     }
     pop_old_reminders(&mut data, now);
-    dweet.post_data(data)?;
+    dweet.post_data(&data)?;
 
     Ok(())
 }

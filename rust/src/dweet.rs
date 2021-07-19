@@ -4,18 +4,18 @@ use std::collections::HashMap;
 use serde_json::{from_str, from_value};
 use serde::{Serialize, Deserialize};
 
-pub struct Dweet<'a> {
-    _key: &'a str,
+pub struct Dweet {
+    _key: String,
     get_link: String,
     post_link: String,
 }
 
-impl<'a> Dweet<'a> {
-    pub fn new(dweet: &'a str) -> Self {
+impl Dweet {
+    pub fn new(dweet: String) -> Self {
         Self {
+            get_link: format!("https://dweet.io/get/latest/dweet/for/{}", &dweet),
+            post_link: format!("https://dweet.io/dweet/for/{}", &dweet),
             _key: dweet,
-            get_link: format!("https://dweet.io/get/latest/dweet/for/{}", dweet),
-            post_link: format!("https://dweet.io/dweet/for/{}", dweet),
         }
     }
 
@@ -43,16 +43,14 @@ impl<'a> Dweet<'a> {
     
     /// used to post hashmaps of Reminders in dweet
     /// this may panic!!!
-    pub fn post_data<T>(&self, mut data: Vec<T>) -> Result<(), Box<dyn std::error::Error>> 
+    pub fn post_data<T>(&self, data: &Vec<T>) -> Result<(), Box<dyn std::error::Error>> 
     where T: Serialize + for<'de> Deserialize<'de> {
         
         // .get_data expects data in a hashmap
-        let mut map = HashMap::<u64, T>::new();
-        let mut i = 0;
+        let mut map = HashMap::<u64, &T>::new();
         // tea -> an instance of T
-        for tea in data.drain(0..data.len()) { // drain pops the element as its used
-            map.insert(i, tea);
-            i += 1;
+        for i in 0..data.len() {
+            map.insert(i as u64, &data[i]);
         }
         
         let client = reqwest::blocking::Client::new();

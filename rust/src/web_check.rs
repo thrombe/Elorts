@@ -7,6 +7,7 @@ use reqwest;
 use super::discord::{Discord, DiscordMsg};
 use super::search_and_chop::search_and_chop;
 use super::dweet::Dweet;
+use super::Opt;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct WebElort {
@@ -42,12 +43,9 @@ impl WebElort {
     }
 }
 
-pub fn elort() -> Result<(), Box<dyn std::error::Error>> {
-    let dweet = Dweet::new("byerobero-botifications");
-    let discord = Discord::new(
-        "https://discord.com/api/webhooks/864157339413774380/fOScRd_0ofvOrIRKr5qxYFDj5XA9GzVFzJnhWSc0UnJbIOr2ptfugevA4pPlVCcHyGFY"
-        .to_string()
-    );
+pub fn elort(opt: Opt) -> Result<(), Box<dyn std::error::Error>> {
+    let dweet = Dweet::new(opt.dweet);
+    let discord = Discord::new(opt.cordwebhook);
     
     // fetch from dweet
     let mut dweelorts = match dweet.get_data::<WebElort>() {
@@ -56,11 +54,23 @@ pub fn elort() -> Result<(), Box<dyn std::error::Error>> {
     };
     // println!("{:?}", &dweelorts);
     
-    let data = fs::read_to_string(
-        "./webElorts.json"
-    )?;
-    let mut elorts: Vec<WebElort> = from_str(&data)?;
-    yeet_bad_elorts(&mut elorts);
+    // this looks very dirty cuz of both json and dweet inputs, maybe yeet the json version?
+    let mut elorts: Vec<WebElort>;
+    let dwee2: Dweet;
+    if let Some(json) = opt.json {
+        let data = fs::read_to_string(json)?;
+        elorts = from_str(&data)?;
+        yeet_bad_elorts(&mut elorts);
+    } else {
+        if let Some(val) = opt.dwee2 {
+            dwee2 = Dweet::new(val);
+            elorts = match dwee2.get_data::<WebElort>() {
+                Ok(val) => val,
+                Err(er) => panic!("{:?}", er),
+            };
+            dwee2.post_data(&elorts)?; // posting so it dosent despawn (24 hour despawn thing)
+        } else {panic!()} // code should never reach this, but this is reqiread for compiler satisfaction
+    }
     
     for i in 0..elorts.len() {
         elorts[i].fetch()?;
@@ -86,12 +96,12 @@ pub fn elort() -> Result<(), Box<dyn std::error::Error>> {
             continue 'loup2;
         }
         // not found in elorts
-        dweelorts[i].name = format!("REMOVED TITLE - {}", &elorts[i].name);
+        dweelorts[i].name = format!("REMOVED TITLE - {}", &dweelorts[i].name);
         discord.ping(&dweelorts[i])?;
     }
     
-    dweet.post_data(elorts)?;
-    
+    dweet.post_data(&elorts)?;
+
     Ok(())
 }
 
