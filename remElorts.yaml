@@ -15,4 +15,4 @@ jobs:
       - name: run binary
         run: |
           chmod +x ./Elorts
-          ./Elorts remind
+          ./Elorts reminders -c ${{secrets.webhook}} -d ${{secrets.dweetrem}}

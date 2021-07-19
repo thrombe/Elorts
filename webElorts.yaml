@@ -14,4 +14,4 @@ jobs:
       - name: run binary
         run: |
           chmod +x ./Elorts
-          ./Elorts web_check
+          ./Elorts web-check -c ${{secrets.webhook}} -d ${{secrets.dweetweb1}} -i ${{secrets.dweetweb2}}

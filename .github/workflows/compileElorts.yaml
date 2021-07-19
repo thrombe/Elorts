@@ -24,7 +24,7 @@ jobs:
           mkdir -p ${{secrets.repo}}/.github/workflows
           cp ./remElorts.yaml ./${{secrets.repo}}/.github/workflows/remElorts.yaml
           cp ./webElorts.yaml ./${{secrets.repo}}/.github/workflows/webElorts.yaml
-          cp ./webElorts.json ./${{secrets.repo}}/webElorts.json
+          #cp ./webElorts.json ./${{secrets.repo}}/webElorts.json
       - name: move binary and push
         run: |
           mv rust/target/release/Elorts ${{secrets.repo}}/Elorts
