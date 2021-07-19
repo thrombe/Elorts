@@ -4,7 +4,6 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use super::dweet::Dweet;
 use super::discord::{Discord, DiscordMsg};
-use super::Opt;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Reminder {
@@ -37,10 +36,10 @@ impl Reminder {
 }
 
 /// this is the main func here
-pub fn remind(opt: Opt) -> Result<(), Box<dyn std::error::Error>> {
-    let dweet = Dweet::new(opt.dweet);
+pub fn remind(cordwebhook: String, dweekee: String) -> Result<(), Box<dyn std::error::Error>> {
+    let dweet = Dweet::new(dweekee);
     let time_span: u64 = 60*15; // half thebcheck interval time
-    let mut discord = Discord::new(opt.cordwebhook);
+    let mut discord = Discord::new(cordwebhook);
     // dweet.post_data(Reminder::test_data())?;
     let mut data = match dweet.get_data::<Reminder>() {
         Ok(val) => val,
@@ -73,26 +72,3 @@ fn pop_old_reminders(data: &mut Vec<Reminder>, now: u64) {
         data.remove(i);
     }
 }
-
-
-
-
-/*
-//// ignore stuff after this, its just testing
-fn eg_ser_deser() -> Result<(), Box<dyn std::error::Error>> {
-    let vec = vec![ // create whatever you wanna serialise to string
-        Reminder {
-            title: "testRem",
-            message: "reminder to koff",
-            time: "68419",
-        }
-    ];
-    let eg_json = to_string(&vec)?; // deserialize objects to string
-    println!("{:?}", eg_json);
-    
-    let eg_deser: Vec<Reminder> = from_str(&eg_json).unwrap(); // serialise objects from string
-    println!("{:?}", eg_deser);
-    
-    Ok(())
-}
-*/

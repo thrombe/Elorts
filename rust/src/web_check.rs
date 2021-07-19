@@ -7,7 +7,6 @@ use reqwest;
 use super::discord::{Discord, DiscordMsg};
 use super::search_and_chop::search_and_chop;
 use super::dweet::Dweet;
-use super::Opt;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct WebElort {
@@ -43,9 +42,9 @@ impl WebElort {
     }
 }
 
-pub fn elort(opt: Opt) -> Result<(), Box<dyn std::error::Error>> {
-    let dweet = Dweet::new(opt.dweet);
-    let discord = Discord::new(opt.cordwebhook);
+pub fn elort(cordwebhook: String, dweekee: String, input: String, json: bool) -> Result<(), Box<dyn std::error::Error>> {
+    let dweet = Dweet::new(dweekee);
+    let discord = Discord::new(cordwebhook);
     
     // fetch from dweet
     let mut dweelorts = match dweet.get_data::<WebElort>() {
@@ -54,22 +53,18 @@ pub fn elort(opt: Opt) -> Result<(), Box<dyn std::error::Error>> {
     };
     // println!("{:?}", &dweelorts);
     
-    // this looks very dirty cuz of both json and dweet inputs, maybe yeet the json version?
     let mut elorts: Vec<WebElort>;
-    let dwee2: Dweet;
-    if let Some(json) = opt.json {
-        let data = fs::read_to_string(json)?;
+    if json {
+        let data = fs::read_to_string(input)?;
         elorts = from_str(&data)?;
         yeet_bad_elorts(&mut elorts);
     } else {
-        if let Some(val) = opt.dwee2 {
-            dwee2 = Dweet::new(val);
-            elorts = match dwee2.get_data::<WebElort>() {
-                Ok(val) => val,
-                Err(er) => panic!("{:?}", er),
-            };
-            dwee2.post_data(&elorts)?; // posting so it dosent despawn (24 hour despawn thing)
-        } else {panic!()} // code should never reach this, but this is reqiread for compiler satisfaction
+        let dwee2 = Dweet::new(input);
+        elorts = match dwee2.get_data::<WebElort>() {
+            Ok(val) => val,
+            Err(er) => panic!("{:?}", er),
+        };
+        dwee2.post_data(&elorts)?; // posting so it dosent despawn (24 hour despawn thing)
     }
     
     for i in 0..elorts.len() {
