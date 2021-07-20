@@ -31,6 +31,19 @@ pub enum Opt {
         
         #[structopt(short, long)]
         json: bool,
+    },
+    AddReminder {
+        #[structopt(short, long)]
+        dweet: String,
+        
+        #[structopt(long)]
+        date: Vec<u32>,
+        
+        #[structopt(short, long)]
+        time: Vec<u32>,
+        
+        #[structopt(short, long)]
+        message: String,
     }
 }
 
@@ -41,9 +54,12 @@ fn main() {
     match opt {
         Opt::Reminders{cordwebhook, dweet} => {
             remind::remind(cordwebhook, dweet).unwrap();
-        }
+        },
         Opt::WebCheck{cordwebhook, dweet, input, json} => {
             web_check::elort(cordwebhook, dweet, input, json).unwrap();
-        }
+        },
+        Opt::AddReminder{dweet, date, time, message} => {
+            remind::add_reminder(dweet, date, time, message).unwrap();
+        },
     }
 }
