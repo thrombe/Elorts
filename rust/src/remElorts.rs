@@ -80,7 +80,7 @@ pub fn add_reminder(dweekee: String, mut date_num: Vec<u32>, time_num: Vec<u32>,
         -> Result<(), Box<dyn std::error::Error>> {
     let time_offset = (5*60 + 30)*60;
     let now = chrono::Utc::now();
-    let now_ts = now.timestamp();
+    // let now_ts = now.timestamp();
     let today = (now.clone() + chrono::Duration::seconds(time_offset)).date();
     // println!("today: {:?}\nday: {:?}", &today, &today.weekday());
     

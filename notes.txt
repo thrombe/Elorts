@@ -1,0 +1,6 @@
+plan:
+    . webElorts crashes if dweet links dont return stuff,
+      . message on discord about this?
+      . add a func that fixes this using the json file
+        . -d key -j /path (or something)
+  

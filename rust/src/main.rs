@@ -1,10 +1,10 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 
-mod remind;
+mod remElorts;
 mod dweet;
 mod discord;
-mod web_check;
+mod webElorts;
 mod search_and_chop;
 
 use structopt::StructOpt;
@@ -53,13 +53,13 @@ fn main() {
     
     match opt {
         Opt::Reminders{cordwebhook, dweet} => {
-            remind::remind(cordwebhook, dweet).unwrap();
+            remElorts::remind(cordwebhook, dweet).unwrap();
         },
         Opt::WebCheck{cordwebhook, dweet, input, json} => {
-            web_check::elort(cordwebhook, dweet, input, json).unwrap();
+            webElorts::check(cordwebhook, dweet, input, json).unwrap();
         },
         Opt::AddReminder{dweet, date, time, message} => {
-            remind::add_reminder(dweet, date, time, message).unwrap();
+            remElorts::add_reminder(dweet, date, time, message).unwrap();
         },
     }
 }

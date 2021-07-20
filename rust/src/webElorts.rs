@@ -42,7 +42,7 @@ impl WebElort {
     }
 }
 
-pub fn elort(cordwebhook: String, dweekee: String, input: String, json: bool) -> Result<(), Box<dyn std::error::Error>> {
+pub fn check(cordwebhook: String, dweekee: String, input: String, json: bool) -> Result<(), Box<dyn std::error::Error>> {
     let dweet = Dweet::new(dweekee);
     let discord = Discord::new(cordwebhook);
     
