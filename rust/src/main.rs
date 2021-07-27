@@ -12,6 +12,7 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt)]
 #[structopt(name = "options")]
 pub enum Opt {
+    /// -c discord webhook -d dweet key
     Reminders {
         #[structopt(short = "c", long = "cordwebhook")]
         cordwebhook: String,
@@ -19,6 +20,8 @@ pub enum Opt {
         #[structopt(short, long)]
         dweet: String,
     },
+    
+    /// -c discordwebhook -d dweet key -i (dweet key2 or json path) -j (if -i has json path)(bool)
     WebCheck {
         #[structopt(short, long)]
         cordwebhook: String,
@@ -32,6 +35,8 @@ pub enum Opt {
         #[structopt(short, long)]
         json: bool,
     },
+    
+    /// -d dweet key --date date(mm, dd) -t time(hh, mm) -m message
     AddReminder {
         #[structopt(short, long)]
         dweet: String,

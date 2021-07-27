@@ -3,4 +3,11 @@ plan:
       . message on discord about this?
       . add a func that fixes this using the json file
         . -d key -j /path (or something)
+    . remElorts dosent execute at uniform time steps, maybe
+      update the message of the default reminder with exec time
+      and add another func that posts this on discord or something
+      so i can check on it
+    . do tuples work with structopts?
+      . maybe try if variable inputs works
+      . for time and date (int, int, int) or something
   

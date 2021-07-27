@@ -90,7 +90,7 @@ pub fn add_reminder(dweekee: String, mut date_num: Vec<u32>, time_num: Vec<u32>,
             else {date_num.push(today.month())}
             date_num.push(today.year() as u32);
             if date_num[1] == 13 { // december to jan correction
-                date_num[1] -= 1;
+                date_num[1] = 1;
                 date_num[2] += 1;
             }
         },
