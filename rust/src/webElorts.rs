@@ -110,3 +110,12 @@ fn yeet_bad_elorts(elorts: &mut Vec<WebElort>) {
         elorts.remove(i);
     }
 }
+
+pub fn update(dweekee: String, json: String) -> Result<(), Box<dyn std::error::Error>> {
+    let dweet = Dweet::new(dweekee);
+    let data = fs::read_to_string(json)?;
+    let mut elorts = from_str(&data)?;
+    yeet_bad_elorts(&mut elorts);
+    dweet.post_data(&elorts)?;
+    Ok(())
+}

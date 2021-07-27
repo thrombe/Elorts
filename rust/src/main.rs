@@ -49,7 +49,16 @@ pub enum Opt {
         
         #[structopt(short, long)]
         message: String,
-    }
+    },
+    
+    /// -d dweet -j json path
+    UpdateWebCheck {
+        #[structopt(short, long)]
+        dweet: String,
+        
+        #[structopt(short, long)]
+        json: String,
+    },
 }
 
 fn main() {
@@ -65,6 +74,9 @@ fn main() {
         },
         Opt::AddReminder{dweet, date, time, message} => {
             remElorts::add_reminder(dweet, date, time, message).unwrap();
+        },
+        Opt::UpdateWebCheck{dweet, json} => {
+            webElorts::update(dweet, json).unwrap();
         },
     }
 }
