@@ -1,8 +1,22 @@
+
+
+
 plan:
+    /. ability to check multiple things per elort in webElorts
+      /. i.e. multiple search starts and search ends
+      /. check the last 5 instead of first five (or reverse the list)
+        /. some pages have new things in the bottom instead of the top
+    . maybe keep track of how many matches there were and if it goes different, then ping
+    /. check n items instead of the current version, where its strictly 5
+      /. what is the size limit in dweet?
+    /. only use 1 dweet key for webelorts
+      /. key + "something" is the other key
+    /. n dweets each under some specific size limit- 2000 characters
+      /. string.chars().count() - O(n)
     . webElorts crashes if dweet links dont return stuff,
       . message on discord about this?
-      . add a func that fixes this using the json file
-        . -d key -j /path (or something)
+      /. add a func that fixes this using the json file
+        /. -d key -j /path (or something)
     . remElorts dosent execute at uniform time steps, maybe
       update the message of the default reminder with exec time
       and add another func that posts this on discord or something
@@ -10,4 +24,5 @@ plan:
     . do tuples work with structopts?
       . maybe try if variable inputs works
       . for time and date (int, int, int) or something
-  
+
+

@@ -21,7 +21,7 @@ pub enum Opt {
         dweet: String,
     },
     
-    /// -c discordwebhook -d dweet key -i (dweet key2 or json path) -j (if -i has json path)(bool)
+    /// -c discordwebhook -d dweet key -j json path (optional)
     WebCheck {
         #[structopt(short, long)]
         cordwebhook: String,
@@ -30,10 +30,7 @@ pub enum Opt {
         dweet: String,
         
         #[structopt(short, long)]
-        input: String,
-        
-        #[structopt(short, long)]
-        json: bool,
+        json: Option<String>,
     },
     
     /// -d dweet key --date date(mm, dd) -t time(hh, mm) -m message
@@ -69,8 +66,8 @@ fn main() {
         Opt::Reminders{cordwebhook, dweet} => {
             remElorts::remind(cordwebhook, dweet).unwrap();
         },
-        Opt::WebCheck{cordwebhook, dweet, input, json} => {
-            webElorts::check(cordwebhook, dweet, input, json).unwrap();
+        Opt::WebCheck{cordwebhook, dweet, json} => {
+            webElorts::check(cordwebhook, dweet, json).unwrap();
         },
         Opt::AddReminder{dweet, date, time, message} => {
             remElorts::add_reminder(dweet, date, time, message).unwrap();
