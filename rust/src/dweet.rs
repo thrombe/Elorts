@@ -95,7 +95,7 @@ impl MultiDweet {
         MultiDweet {
             dweet: Dweet::new(format!("{}-0", &dweekee)),
             dweekee,
-            charlimit: 10000,
+            charlimit: 9000, // idk why the site says 2k chars but accepts more than 10k
             dweeindex: 0,
         }
     }
@@ -146,8 +146,9 @@ impl MultiDweet {
             }
             self.new_dweet();
         }
-        // FIX THE ERROR THING!!
-        // if dweeindex == 0 {throw error with ? so it can be handled acc to conditions}
+        if self.dweeindex == 0 { // idk how to do error here properly rn
+            "1.m".parse::<u32>()?;
+        }
         self.dweeindex = 0;
         Ok(data)
     }

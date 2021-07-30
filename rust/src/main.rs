@@ -13,7 +13,7 @@ use structopt::StructOpt;
 #[structopt(name = "options")]
 pub enum Opt {
     /// -c discord webhook -d dweet key
-    Reminders {
+    RemElorts {
         #[structopt(short = "c", long = "cordwebhook")]
         cordwebhook: String,
         
@@ -21,8 +21,8 @@ pub enum Opt {
         dweet: String,
     },
     
-    /// -c discordwebhook -d dweet key -j json path (optional)
-    WebCheck {
+    /// -c discord webhook -d dweet key -j json path (optional)
+    WebElorts {
         #[structopt(short, long)]
         cordwebhook: String,
         
@@ -49,7 +49,7 @@ pub enum Opt {
     },
     
     /// -d dweet -j json path
-    UpdateWebCheck {
+    UpdateWebElorts {
         #[structopt(short, long)]
         dweet: String,
         
@@ -63,16 +63,16 @@ fn main() {
     // println!("{:?}", opt);
     
     match opt {
-        Opt::Reminders{cordwebhook, dweet} => {
+        Opt::RemElorts{cordwebhook, dweet} => {
             remElorts::remind(cordwebhook, dweet).unwrap();
         },
-        Opt::WebCheck{cordwebhook, dweet, json} => {
+        Opt::WebElorts{cordwebhook, dweet, json} => {
             webElorts::check(cordwebhook, dweet, json).unwrap();
         },
         Opt::AddReminder{dweet, date, time, message} => {
             remElorts::add_reminder(dweet, date, time, message).unwrap();
         },
-        Opt::UpdateWebCheck{dweet, json} => {
+        Opt::UpdateWebElorts{dweet, json} => {
             webElorts::update(dweet, json).unwrap();
         },
     }
