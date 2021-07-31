@@ -64,12 +64,28 @@ impl Dweet {
         let client = reqwest::blocking::Client::new();
         let res = client.post(&self.post_link)
             .json(&map)
-            .send()?;
+            .send()?; // handle rate limiting, if fail- sleep for 1 sec?
         
         if !res.status().is_success() {panic!("posting data failed")};
         let txt = res.text()?;
         if let serde_json::Value::Object(val) = from_str(&txt)? {
-            if val["this"] != "succeeded" {
+            if let serde_json::Value::String(bhal) = &val["this"] {
+                match &bhal[..] {
+                    "succeeded" => (),
+                    "failed" => {
+                        if let serde_json::Value::String(khal) = &val["because"] {
+                            match &khal.split_whitespace().collect::<Vec<&str>>()[0][..] {
+                                "Rate" => return self.post_data(data),
+                                "the" => panic!("{}", &txt), // too long
+                                _ => panic!("{}", &txt),
+                            }
+                        } else {
+                            panic!("{}", &txt);
+                        }
+                    },
+                    _ => panic!("{}", &txt),
+                }
+            } else {
                 panic!("{}", &txt);
             }
         } else {
@@ -95,7 +111,7 @@ impl MultiDweet {
         MultiDweet {
             dweet: Dweet::new(format!("{}-0", &dweekee)),
             dweekee,
-            charlimit: 9000, // idk why the site says 2k chars but accepts more than 10k
+            charlimit: 5000, // idk why the site says 2k chars but accepts more than 10k. seems to fail in ghub actions at 10k, 5k works
             dweeindex: 0,
         }
     }
