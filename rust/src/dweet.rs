@@ -116,9 +116,9 @@ impl MultiDweet {
         }
     }
     
-    /// this is expensive cuz it clones all T and also converts them to string and counts the chars
+    /// this is expensive cuz converts them to string and counts the chars
     pub fn post_data<T>(&mut self, data: &Vec<T>) -> Result<(), Box<dyn std::error::Error>> 
-    where T: Serialize + for<'de> Deserialize<'de> + Clone {
+    where T: Serialize + for<'de> Deserialize<'de> {
         /*
         let mut data = kata.clone();
         data.append(&mut kata.clone());
@@ -142,12 +142,17 @@ impl MultiDweet {
         }
         self.dweet.post_data(&data[start..])?;
         
-        self.dweeindex = 0;
+        self.reset_dweet();
         Ok(())
     }
     
     fn new_dweet(&mut self) {
         self.dweeindex += 1;
+        self.dweet = Dweet::new(format!("{}-{}", self.dweekee, self.dweeindex));
+    }
+    
+    fn reset_dweet(&mut self) {
+        self.dweeindex = 0;
         self.dweet = Dweet::new(format!("{}-{}", self.dweekee, self.dweeindex));
     }
     
@@ -165,7 +170,7 @@ impl MultiDweet {
         if self.dweeindex == 0 { // idk how to do error here properly rn
             "1.m".parse::<u32>()?;
         }
-        self.dweeindex = 0;
+        self.reset_dweet();
         Ok(data)
     }
 }
