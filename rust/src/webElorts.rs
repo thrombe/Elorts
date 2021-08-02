@@ -11,6 +11,7 @@ use super::dweet::MultiDweet;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct WebElort {
     name: String,
+    status: bool,
     url: String,
     search_starts: Vec<String>,
     search_ends: Vec<String>,
@@ -132,7 +133,7 @@ pub fn check(cordwebhook: String, dweekee: String, json: Option<String>) -> Resu
 fn yeet_bad_elorts(elorts: &mut Vec<WebElort>) {
     let mut i = 0;
     while i < elorts.len() {
-        if elorts[i].search_ends[0] != "" {
+        if elorts[i].status {
             i += 1;
             continue
         }
