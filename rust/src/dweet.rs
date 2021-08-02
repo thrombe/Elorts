@@ -4,6 +4,8 @@ use std::collections::HashMap;
 use serde_json::{from_str, from_value, to_string};
 use serde::{Serialize, Deserialize};
 
+use super::printdebug;
+
 #[derive(Debug)]
 pub struct Dweet {
     // _key: String,
@@ -21,8 +23,6 @@ impl Dweet {
     }
 
     /// get the data stored in dweep and deserialise it into a vec of Reminders
-    /// this func panics!! if data is not in correct format
-    /// outdated doc
     pub fn get_data<T>(&self) -> Result<Vec<T>, Box<dyn std::error::Error>> 
     where T: Serialize + for<'de> Deserialize<'de> {
         
@@ -30,9 +30,6 @@ impl Dweet {
         let resp: serde_json::Value = from_str(&resp)?; // convert string to serde json objects
         let resp = match &resp["with"][0]["content"] { // get relevent data out of it
             serde_json::Value::Object(val) => val,
-            // _ => panic!("unexpected data\n{}", self.get_link),
-            // how do i do better errors here?
-            // _ => return Ok(vec!()),
             _ => { // idk how to properly return a error here
                 "1.m".parse::<u32>()?;
                 return Ok(vec!())
@@ -67,15 +64,17 @@ impl Dweet {
             .send()?; // handle rate limiting, if fail- sleep for 1 sec?
         
         if !res.status().is_success() {panic!("posting data failed")};
+        printdebug!(res.headers());
         let txt = res.text()?;
-        if let serde_json::Value::Object(val) = from_str(&txt)? {
+        printdebug!(&txt); // .text() consumes object. so cant call headers() after it
+        if let serde_json::Value::Object(val) = from_str(&txt)? { // how do i fix this mess ????
             if let serde_json::Value::String(bhal) = &val["this"] {
                 match &bhal[..] {
                     "succeeded" => (),
                     "failed" => {
                         if let serde_json::Value::String(khal) = &val["because"] {
                             match &khal.split_whitespace().collect::<Vec<&str>>()[0][..] {
-                                "Rate" => return self.post_data(data),
+                                "Rate" => return self.post_data(data), // rate limiting
                                 "the" => panic!("{}", &txt), // too long
                                 _ => panic!("{}", &txt),
                             }
@@ -91,8 +90,6 @@ impl Dweet {
         } else {
             panic!("{}", &txt);
         }
-        // println!("{:?}", res.headers()["content-length"]);
-        // println!("{:?}", res.text());
         
         Ok(())
     }
@@ -119,14 +116,7 @@ impl MultiDweet {
     /// this is expensive cuz converts them to string and counts the chars
     pub fn post_data<T>(&mut self, data: &Vec<T>) -> Result<(), Box<dyn std::error::Error>> 
     where T: Serialize + for<'de> Deserialize<'de> {
-        /*
-        let mut data = kata.clone();
-        data.append(&mut kata.clone());
-        data.append(&mut kata.clone());
-        println!("count- {}", to_string(&data)?.chars().count());
-        self.dweet.post_data(&data)?;
-        // return Ok(());
-        */
+        printdebug!(format!("count- {}", to_string(&data)?.chars().count()));
         let mut chars = 0;
         let mut start = 0;
         let mut i = 0;
@@ -153,10 +143,9 @@ impl MultiDweet {
     
     fn reset_dweet(&mut self) {
         self.dweeindex = 0;
-        self.dweet = Dweet::new(format!("{}-{}", self.dweekee, self.dweeindex));
+        self.dweet = Dweet::new(format!("{}-0", self.dweekee));
     }
     
-    /// here error is bad(no error essentially) if all get_data fails
     pub fn get_data<T>(&mut self) -> Result<Vec<T>, Box<dyn std::error::Error>> 
     where T: Serialize + for<'de> Deserialize<'de> {
         let mut data = Vec::<T>::new();

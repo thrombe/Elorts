@@ -7,73 +7,64 @@ mod discord;
 mod webElorts;
 mod search_and_chop;
 
+use remElorts::{RemElorts, AddReminder};
+use webElorts::{WebElorts, UpdateWebElorts};
+
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "options")]
-pub enum Opt {
-    /// -c discord webhook -d dweet key
-    RemElorts {
-        #[structopt(short = "c", long = "cordwebhook")]
-        cordwebhook: String,
-        
-        #[structopt(short, long)]
-        dweet: String,
-    },
+pub enum FuncOpt {
+    //#[structopt(flatten)]
+    RemElorts(RemElorts),
+    WebElorts(WebElorts),
+    AddReminder(AddReminder),
+    UpdateWebElorts(UpdateWebElorts),
+}
+
+impl FuncOpt {
+    fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        match self {
+            Self::RemElorts(func) => func.run(),
+            Self::WebElorts(func) => func.run(),
+            Self::AddReminder(func) => func.run(),
+            Self::UpdateWebElorts(func) => func.run(),
+        }
+    }
+}
+
+#[derive(Debug, StructOpt)]
+struct Opt {
+    /// turns on debug prints
+    #[structopt(short = "d", long = "debug")]
+    debug: bool,
     
-    /// -c discord webhook -d dweet key -j json path (optional)
-    WebElorts {
-        #[structopt(short, long)]
-        cordwebhook: String,
-        
-        #[structopt(short, long)]
-        dweet: String,
-        
-        #[structopt(short, long)]
-        json: Option<String>,
-    },
-    
-    /// -d dweet key --date date(mm, dd) -t time(hh, mm) -m message
-    AddReminder {
-        #[structopt(short, long)]
-        dweet: String,
-        
-        #[structopt(long)]
-        date: Vec<u32>,
-        
-        #[structopt(short, long)]
-        time: Vec<u32>,
-        
-        #[structopt(short, long)]
-        message: String,
-    },
-    
-    /// -d dweet -j json path
-    UpdateWebElorts {
-        #[structopt(short, long)]
-        dweet: String,
-        
-        #[structopt(short, long)]
-        json: String,
-    },
+    #[structopt(subcommand)]
+    sub: FuncOpt,
+}
+
+static mut DEBUG: bool = false; // using this is unsafe
+/// so that i can pass -d and just have debug prints enabled
+#[macro_export]
+macro_rules! printdebug {
+    //( $debug:expr, ( $x:expr ),* ) => {
+    ( $( $x:expr ),* ) => {
+        //if $debug {
+        let debug: bool;
+        unsafe {debug = super::DEBUG}
+        if debug {
+            $(
+                print!("{:?}, ", $x);
+            )*
+            println!();
+        }
+    };
 }
 
 fn main() {
-    let opt = Opt::from_args();
+    let mut opt = Opt::from_args();
     // println!("{:?}", opt);
+    unsafe {DEBUG = opt.debug}
+    // printdebug!(2, 4, 5);
     
-    match opt {
-        Opt::RemElorts{cordwebhook, dweet} => {
-            remElorts::remind(cordwebhook, dweet).unwrap();
-        },
-        Opt::WebElorts{cordwebhook, dweet, json} => {
-            webElorts::check(cordwebhook, dweet, json).unwrap();
-        },
-        Opt::AddReminder{dweet, date, time, message} => {
-            remElorts::add_reminder(dweet, date, time, message).unwrap();
-        },
-        Opt::UpdateWebElorts{dweet, json} => {
-            webElorts::update(dweet, json).unwrap();
-        },
-    }
+    opt.sub.run().unwrap();
 }
