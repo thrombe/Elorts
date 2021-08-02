@@ -83,7 +83,6 @@ pub struct WebElorts {
 impl WebElorts {
     pub fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
         let mut dweet = MultiDweet::new(self.dweet.clone());
-        printdebug!(&dweet);
         let discord = Discord::new(self.cordwebhook.clone());
 
         // fetch from dweet
@@ -91,7 +90,7 @@ impl WebElorts {
             Ok(val) => val,
             Err(_) => Vec::new(),
         };
-        printdebug!(&dweelorts);
+        printdebug!("dweelorts", &dweelorts);
 
         let mut elorts: Vec<WebElort>;
         match &self.json {
@@ -109,7 +108,7 @@ impl WebElorts {
                 dwee2.post_data(&elorts)?; // posting so it dosent despawn (24 hour despawn thing)
             },
         }
-        printdebug!(&elorts);
+        printdebug!("elorts", &elorts);
 
         for i in 0..elorts.len() {
             elorts[i].fetch()?;
@@ -140,7 +139,7 @@ impl WebElorts {
             discord.ping(&dweelorts[i])?;
         }
 
-        printdebug!(&elorts);
+        printdebug!("elorts updated", &elorts);
         dweet.post_data(&elorts)?;
 
         Ok(())

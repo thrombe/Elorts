@@ -5,7 +5,7 @@ use chrono;
 use chrono::Datelike;// import trait to use DateTime.date().weekday() and stuff
 use structopt::StructOpt;
 
-use super::dweet::Dweet;
+use super::dweet::MultiDweet;
 use super::discord::{Discord, DiscordMsg};
 use super::printdebug;
 
@@ -51,7 +51,7 @@ pub struct RemElorts {
 
 impl RemElorts {
     pub fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let dweet = Dweet::new(self.dweet.clone());
+        let mut dweet = MultiDweet::new(self.dweet.clone());
         let time_span: u64 = 60*15; // half the check interval time
         let mut discord = Discord::new(self.cordwebhook.clone());
         let mut data = match dweet.get_data::<Reminder>() {
@@ -134,7 +134,7 @@ impl AddReminder {
             time: future_ts as u64,
             message: self.message.clone(),
         };
-        let dweet = Dweet::new(self.dweet.clone());
+        let mut dweet = MultiDweet::new(self.dweet.clone());
         let mut data = match dweet.get_data::<Reminder>() {
             Ok(val) => val,
             Err(er) => panic!("{:?}", er),

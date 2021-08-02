@@ -55,7 +55,7 @@ macro_rules! printdebug {
             $(
                 print!("{:?}, ", $x);
             )*
-            println!();
+            println!("\n");
         }
     };
 }

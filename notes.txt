@@ -5,23 +5,20 @@ plan:
     . HANDLE THE ERRORS PROPERLY
       . if some site dosent load, then send a ping on discord instead of crash
       . if no items are in webelorts.texts, then send ping
-    /. try shifting the FuncOpts in the resp files in structs
+    . if single dweet is too long, then provide method for shortening it (trait)
     . remove useless comments and remove jankness
-    /. some nice way to toggle debug prints with a flag
-      /. a macro would be nice instead of if debug println!(....)
-        /. debug!(text) - this takes care of the "{:?}" and the debug flag things
     . take &[T] input instead of Vec<T> (confirm first why this happens)
     . rearrange the stuff in json, so that its easier to read and change
       . do i really need to keep the texts in dweet?
-      /. change the order and stuff
-      /. better way to turn off alerts in webelorts
-        /. maybe another field? in WebElorts
-    . how do i figure out if a elort is older
-      . for eg, if i remove some elorts, and theres currently 5 dweets and 
+    /. how do i figure out if a elort is older
+      /. for eg, if i remove some elorts, and theres currently 5 dweets and 
         after removal, theres 4 dweets. so when the next retrival happens, it will
         get all 5, and i may check the removed elorts again, and have the message sent 
         to me twice (for removal)
-      . same for the removal from dweekee-json ig, there too, i might have probs
+      /. same for the removal from dweekee-json ig, there too, i might have probs
+      /. this problem keeps feeding itself, as it keeps gaining copies of elorts
+      /. sol- 
+        /. upload the multiDweet details in dweekee (since dweekee-0 and stuff is used)
     
     . maybe nested searches? in webelorts
       . like search between this and this and then search another time in this text
