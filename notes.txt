@@ -4,33 +4,33 @@
 plan:
     . HANDLE THE ERRORS PROPERLY
       . if some site dosent load, then send a ping on discord instead of crash
-      . if no items are in webelorts.texts, then send ping
-    . if single dweet is too long, then provide method for shortening it (trait)
-    . remove useless comments and remove jankness
-    . take &[T] input instead of Vec<T> (confirm first why this happens)
-    . rearrange the stuff in json, so that its easier to read and change
-      . do i really need to keep the texts in dweet?
-    /. how do i figure out if a elort is older
-      /. for eg, if i remove some elorts, and theres currently 5 dweets and 
-        after removal, theres 4 dweets. so when the next retrival happens, it will
-        get all 5, and i may check the removed elorts again, and have the message sent 
-        to me twice (for removal)
-      /. same for the removal from dweekee-json ig, there too, i might have probs
-      /. this problem keeps feeding itself, as it keeps gaining copies of elorts
-      /. sol- 
-        /. upload the multiDweet details in dweekee (since dweekee-0 and stuff is used)
+      \. if no items are in webelorts.texts, then send ping
+    . edit reminders
+      . view reminders
+        . pretty print? how?
+      . save date and time in reminder just so its human readable
+        . print this time in message too?
+    . reminder importance rating
+      . maybe different channel
+      . maybe tagging
+    . today/tomm -> alias for curr date/ curr date+1
     
-    . maybe nested searches? in webelorts
-      . like search between this and this and then search another time in this text
+    . a way to add new sites using cli
     . maybe keep track of how many matches there were and if it goes different, then ping
-    . webElorts crashes if dweet links dont return stuff,
-      . message on discord about this?
-    . remElorts dosent execute at uniform time steps, maybe
-      update the message of the default reminder with exec time
-      and add another func that posts this on discord or something
-      so i can check on it
+    . take &[T] input instead of Vec<T> (confirm first why this happens)
     . do tuples work with structopts?
       . maybe try if variable inputs works
       . for time and date (int, int, int) or something
+    . ability to set reminders from discord
+      . maybe the discord bot thing?
+        . need to run continuously?
+    
+    . if single dweet is too long(~~10k), then provide method for shortening it (trait)
+    . rearrange the stuff in json, so that its easier to read and change
+      . do i really need to keep the texts in dweet?
+    
+    . remove jankness
+    . maybe nested searches? in webelorts
+      . like search between this and this and then search another time in this text
 
 

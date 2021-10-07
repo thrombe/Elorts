@@ -1,6 +1,5 @@
 
 use serde_derive::{Serialize, Deserialize};
-use std::time::{SystemTime, UNIX_EPOCH};
 use chrono;
 use chrono::Datelike;// import trait to use DateTime.date().weekday() and stuff
 use structopt::StructOpt;
@@ -52,7 +51,7 @@ pub struct RemElorts {
 impl RemElorts {
     pub fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
         let mut dweet = MultiDweet::new(self.dweet.clone());
-        let time_span: u64 = 60*15; // half the check interval time
+        let schedule_interval_span: u64 = 60*15; // half the check interval time
         let mut discord = Discord::new(self.cordwebhook.clone());
         let mut data = match dweet.get_data::<Reminder>() {
             Ok(val) => val,
@@ -60,10 +59,8 @@ impl RemElorts {
         };
         printdebug!(&data);
 
-        let mut now: u64 = SystemTime::now()
-            .duration_since(UNIX_EPOCH)?
-            .as_secs();
-        now += time_span;
+        let mut now: u64 = chrono::Utc::now().timestamp() as u64;
+        now += schedule_interval_span;
         for reminder in &data {
             if now < reminder.time {continue}
             discord.rate_limit_wait(); // not implimented yet
@@ -105,8 +102,10 @@ pub struct AddReminder {
 
 impl AddReminder {
     pub fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        let time_offset = (5*60 + 30)*60;
+        let time_offset = (5*60 + 30)*60; // ist time offset (we need this cuz we want to express times in local timezone and this code may run on diffrent timezone than what se want)
         let now = chrono::Utc::now();
+        // utc + ist_time_offset = ist (its ist so that i can have correct date)
+        // note: by doing this, we have correct date(local), but not correct timestamp
         let today = (now.clone() + chrono::Duration::seconds(time_offset)).date();
 
         match self.date.len() {
@@ -128,7 +127,7 @@ impl AddReminder {
         let time = chrono::NaiveTime::from_hms(self.time[0], self.time[1], 00);
         let datetime = chrono::NaiveDateTime::new(day, time);
         let datetime = chrono::DateTime::<chrono::Utc>::from_utc(datetime, chrono::Utc);
-        let future_ts = datetime.timestamp()-time_offset;
+        let future_ts = datetime.timestamp()-time_offset; // bring the timestamp back to utc or something
 
         let rem = Reminder {
             time: future_ts as u64,

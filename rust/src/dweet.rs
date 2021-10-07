@@ -53,7 +53,7 @@ impl Dweet {
     /// apprarently the slice[t] also accepts Vec<t>
     pub fn post_data_vec<T>(&self, data: &[T]) -> Result<(), Box<dyn std::error::Error>> 
     where T: Serialize + for<'de> Deserialize<'de> + Debug {
-        printdebug!(&self, "\nposting data vec-", data);
+        printdebug!("posting data vec-", &self, data);
         // .get_data expects data in a hashmap
         let mut map = HashMap::<u64, &T>::new();
         // tea -> an instance of T
@@ -99,7 +99,7 @@ impl Dweet {
     
     pub fn post_data<T>(&self, data: &T) -> Result<(), Box<dyn std::error::Error>> 
     where T: Serialize + for<'de> Deserialize<'de> + Debug {
-        printdebug!(&self, "\nposting-", data);
+        printdebug!("posting-", &self, data);
         let client = reqwest::blocking::Client::new();
         let res = client.post(&self.post_link)
             .json(data)
@@ -112,7 +112,7 @@ impl Dweet {
     where T: Serialize + for<'de> Deserialize<'de> {
         let resp = reqwest::blocking::get(&self.get_link)?.text()?; // get string out of get request
         let resp: serde_json::Value = from_str(&resp)?; // convert string to serde json objects
-        printdebug!(&self, "\ngot data-", &resp);
+        printdebug!("got data-", &self, &resp);
         Ok(from_value::<T>(resp["with"][0]["content"].clone())?) // get relevent data out of it
     }
 }
